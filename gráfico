@@ -1,4 +1,80 @@
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from ipywidgets import widgets
+from IPython.display import display
+
+# Dados fornecidos pelo usuário
+data = {
+    "Período": ["agosto, 2022", "setembro, 2022", "outubro, 2022", "novembro, 2022", "dezembro, 2022",
+                "janeiro, 2023", "fevereiro, 2023", "março, 2023", "abril, 2023", "maio, 2023",
+                "junho, 2023", "julho, 2023", "agosto, 2023", "setembro, 2023", "outubro, 2023",
+                "novembro, 2023", "dezembro, 2023", "janeiro, 2024", "fevereiro, 2024", "março, 2024",
+                "abril, 2024", "maio, 2024", "junho, 2024", "julho, 2024", "agosto, 2024",
+                "setembro, 2024", "outubro, 2024", "novembro, 2024", "dezembro, 2024",
+                "janeiro, 2025", "fevereiro, 2025"],
+    "Aplicações": [259630892.70, 992434257.72, 18279761.94, 380113986.91, 578469147.72,
+                   188444449.77, 11906925.00, 354534453.71, 273931859.39, 373686524.50,
+                   295378623.49, 304953438.84, 385302113.64, 414855021.88, 702931142.44,
+                   337971882.76, 1330039270.13, 79857095.98, 343086005.14, 334040661.54,
+                   335667791.11, 570967643.38, 557154236.64, 660912010.00,
+                   547971900.00, 432452178.82, 184629521.00, 439536000.00,
+                   793680600.00 ,573239600.00 ,404451954.00],
+    "Resgates": [7395.89 ,136836353.84 ,343289319.89 ,351912804.12 ,713281151.74 ,
+                 360405273.74 ,355453963.24 ,364041908.27 ,354741281.26 ,358898632.56 ,
+                 353701700.67 ,386219595.63 ,354370056.47 ,353477043.73 ,349399446.87 ,
+                 344486312.77 ,709374052.97 ,379203332.57 ,372690024.25 ,96402940.92 ,
+                 428916045.03 ,375314623.58 ,390090147.00 ,487105042.00 ,
+                 422861680.29 ,385906286.00 ,116840415.24 ,363755237.64 ,
+                 815755863.00 ,373111500.00 ,397799890],
+    "Carteira": [15949857.27 ,15947211.48 ,16248601.66 ,16188861.90 ,16336789 ,
+                16561376.27 ,16793050.00 ,17042892.10 ,139740021.27 ,139845073.22 ,
+                105241586.43 ,27951483.99 ,62949423.35 ,128541706.80 ,488892329.26 ,
+                489204124.60 ,1113909119.31 ,825079781.95 ,803679784.52 ,1048045581.19 ,
+                963592553.01 ,1168179775.75 ,1344579722.01 ,1530584515.97 ,
+                1669164357.12 ,1729763342.02 ,1813894495.57 ,1904400319.39 ,
+                1898235960.71 ,2118696210.39 ,2145922082],
+    "Fundo": ["FUNPREV"] * 31
+}
+
+# Criar DataFrame
+df = pd.DataFrame(data)
+
+# Função para atualizar o gráfico com base nos filtros
+def update_graph(start_date, end_date):
+    print(f"Data Inicial: {start_date}, Data Final: {end_date}")
+    filtered_df = df[(df['Período'] >= start_date) & (df['Período'] <= end_date)]
+    print(filtered_df)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=filtered_df['Período'], y=filtered_df['Aplicações'], mode='lines', name='Aplicações'))
+    fig.add_trace(go.Scatter(x=filtered_df['Período'], y=filtered_df['Resgates'], mode='lines', name='Resgates'))
+    fig.add_trace(go.Bar(x=filtered_df['Período'], y=filtered_df['Carteira'], name='Carteira'))
+    fig.update_layout(barmode='group', title=f'FUNPREV - {start_date} to {end_date}')
+    fig.show()
+
+# Widgets para selecionar intervalo de datas
+start_date_dropdown = widgets.Dropdown(
+    options=df['Período'].unique(),
+    description='Data Inicial:',
+)
+
+end_date_dropdown = widgets.Dropdown(
+    options=df['Período'].unique(),
+    description='Data Final:',
+)
+
+# Botão para atualizar gráfico
+update_button = widgets.Button(
+    description='Atualizar Gráfico',
+    button_style='success'
+)
+
+# Função para atualizar gráfico ao clicar no botão
+def on_button_click(b):
+    print("Botão clicado")
+    update_graph(start_date_dropdown.value, end_date_dropdown.value)
+
+update_button.on_click(on_button_click)
+
+# Exibir widgets
+display(start_date_dropdown, end_date_dropdown, update_button)
